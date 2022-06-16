@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Supported types of plugin managers. ('base' is an empty .zshrc)
-PLUGIN_MANAGERS="base antibody antigen sheldon zgen zinit zplug zpm"
+PLUGIN_MANAGERS="base antibody antigen sheldon zcomet zgen zinit zplug zpm"
 
 # Prints an error message and exits.
 err() {
@@ -50,6 +50,9 @@ _prepare_install() {
             ;;
         sheldon )
             echo 'find /root/.sheldon -mindepth 1 -maxdepth 1 ! -name "plugins.toml" -exec rm -rf {} \;'
+            ;;
+        zcomet )
+            echo 'rm -rf /root/.zcomet/repos'
             ;;
         zgen )
             echo 'git -C /root/.zgen clean -dffx'
@@ -128,6 +131,16 @@ _update_plugins() {
         for plugin in $plugins; do
             echo "plugins.'$plugin'.github = '$plugin'" >> src/sheldon/plugins.toml
         done
+    fi
+
+    # Zcomet
+    if [ -z "$kind" ] || [ "$kind" = "zcomet" ]; then
+        echo '#!/usr/bin/env zsh' > src/zcomet/zshrc
+        echo 'source "/root/.zcomet/zcomet.zsh"' >> src/zcomet/zshrc
+        for plugin in $plugins; do
+            echo "zcomet load $plugin" >> src/zcomet/zshrc
+        done
+        echo 'zcomet compinit' >> src/zcomet/zshrc
     fi
 
     # Zgen
@@ -259,6 +272,12 @@ command_versions() {
     if [ -z "$kind" ] || [ "$kind" = "sheldon" ]; then
         version=$(_docker_run base sheldon --version | awk '{print $2; exit}')
         echo "sheldon v$version"
+    fi
+
+    # Zcomet
+    if [ -z "$kind" ] || [ "$kind" = "zcomet" ]; then
+        version=$(_docker_run base git -C /root/.zcomet rev-parse --short HEAD)
+        echo "zcomet master @ $version"
     fi
 
     # Zgen
