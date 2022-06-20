@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     locales \
+    python \
     python3 \
     zsh
 
@@ -27,12 +28,13 @@ RUN curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh
 # Zgen
 RUN git clone https://github.com/tarjoilija/zgen /root/.zgen
 
+# Zi
+RUN mkdir -p /root/.zi/bin \
+    && git clone https://github.com/z-shell/zi.git /root/.zi/bin
+
 # Zinit
 RUN mkdir -p /root/.zinit \
     && git clone https://github.com/zdharma/zinit /root/.zinit/bin
-
-# Zgenom
-RUN git clone https://github.com/jandamm/zgenom /root/.zgenom
 
 # Zplug
 RUN git clone https://github.com/zplug/zplug /root/.zplug
